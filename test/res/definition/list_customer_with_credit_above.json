@@ -1,0 +1,16 @@
+{
+  "name": "list_customer_with_credit_above",
+  "title": "Customers with credit",
+  "description": "List customers with credit above a certain level",
+  "parameters": [
+    {
+      "name": "user_id",
+      "type": "server"
+    },
+    {
+      "name": "amount",
+      "type": "integer"
+    }
+  ],
+  "statement": "SELECT\n  id,\n  CONCAT('id', ': ', first_name, ' ', last_name) AS disp\nFROM customers\n  INNER JOIN credit ON credit.customer_id = customers.id\nWHERE credit.amount >= $amount AND sales_rep = $user_id"
+}

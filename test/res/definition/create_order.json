@@ -1,0 +1,19 @@
+{
+  "name": "create_order",
+  "title": "Add an order for a customer",
+  "parameters": [
+    {
+      "name": "credit",
+      "type": "integer",
+      "default_value": 5
+    },
+    {
+      "name": "customer_id",
+      "type": "select",
+      "definition": "list_customer_with_credit_above",
+      "display_field": "disp",
+      "value_field": "id"
+    }
+  ],
+  "statement": "insert into orders (customer_id, ref, total_credit, available_credit) values ($customer_id, 'big $$ $$a $ person', $credit, $credit)"
+}

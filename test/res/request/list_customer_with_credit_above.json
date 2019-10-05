@@ -1,0 +1,5 @@
+{
+  "status": "complete",
+  "location": "/result/list_customer_with_credit_above.json",
+  "arguments": [ { "name": "credit", "value": 4 } ] 
+}

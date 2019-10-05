@@ -1,0 +1,22 @@
+{
+  "name": "definition2",
+	"title": "Add an order for a customer",
+  "parameters": [
+    {
+      "name": "customer_id",
+      "type": "select",
+      "definition": "bob",
+      "display_field": "disp",
+      "value_field": "id"
+    }
+  ],
+  "statement": [
+    "insert into orders (customer_id, credit) values (",
+      "$customer_id, ",
+    {
+      "name": "credit",
+      "type": "integer"
+    },
+    ")"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "esqlate-lib",
+  "version": "0.0.0",
+  "description": "SQL based functional CRUD - The Libary",
+  "main": "./dist/convert.js",
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "0.0.16-4.1.0",
+    "ajv": "^6.10.0",
+    "json-refs": "^3.0.13",
+    "json-schema-to-typescript": "^6.1.3",
+    "redoc": "^2.0.0-rc.14",
+    "redoc-cli": "^0.8.6",
+    "speccy": "^0.11.0",
+    "tslint": "^5.17.0",
+    "typescript": "^3.5.1"
+  },
+  "devDependencies": {
+    "@types/tape": "^4.2.33",
+    "tape": "^4.10.2",
+    "ts-node": "^8.2.0"
+  },
+  "typings": "./dist/convert.d.ts",
+  "scripts": {
+    "test-schema": "parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-definition.json ::: test/res/definition/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-result.json ::: test/res/result/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-request.json ::: test/res/request/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-request-creation.json ::: test/res/request-creation/*.json",
+    "test-code": "find test -type f | parallel -j 1 ts-node {}",
+    "test": "npm run-script test-schema && npm run-script test-code",
+    "build-openapi": "jsonnet --ext-str for-openapi=1 ./res/src/openapi.jsonnet > ./res/openapi.json",
+    "build-openapi-docs": "npm run-script build-openapi && redoc-cli bundle res/openapi.json",
+    "build-schema": "parallel -j 1 jsonnet --ext-str for-openapi=0 {} '>' ./res/{/.}.json ::: res/src/schema-*.jsonnet",
+    "build-dts": "parallel -j 1 node ./utils/compile.js {} {.}.d.ts ::: ./res/schema-*.json",
+    "build": "npm run-script build-schema && npm run-script build-dts && npm run-script build-openapi-docs && tslint -p . || true && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forbesmyester/esqlate.git"
+  },
+  "keywords": [
+    "crud",
+    "postgresql"
+  ],
+  "author": "Matt Forrester <github@speechmarks.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/forbesmyester/esqlate/issues"
+  },
+  "homepage": "https://github.com/forbesmyester/esqlate#readme"
+}

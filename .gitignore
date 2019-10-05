@@ -1,0 +1,8 @@
+/node_modules/
+/package-lock.json
+/res/schema.json
+/res/schema.d.ts
+/dist
+/res/schema-*
+/res/openapi.json
+/redoc-static.html
