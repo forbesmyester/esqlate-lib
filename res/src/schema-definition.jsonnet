@@ -14,6 +14,12 @@ local esqlate_definition = {
       items: {
         "$ref": link_path() + "esqlate_parameter",
       },
+    },
+    links: {
+      type: "array",
+      items: {
+        "$ref": link_path() + "esqlate_link"
+      }
     }
   },
   required: ["name", "title", "statement", "parameters"],
@@ -40,6 +46,65 @@ local esqlate_definition = {
       required: ["type", "name"]
     },
 
+    esqlate_link_item_static: {
+      type: "object",
+      properties: {
+        type: { type: "string", enum: ["static"] },
+        static: { type: "string" }
+      },
+      additionalProperties: false,
+      required: ["type", "static"]
+    },
+
+    esqlate_link_item_argument: {
+      type: "object",
+      properties: {
+        type: { type: "string", enum: ["argument"] },
+        argument: { type: "string" }
+      },
+      additionalProperties: false,
+      required: ["type", "argument"]
+    },
+
+    esqlate_link_item: {
+      oneOf: [
+        { "$ref": link_path() + "esqlate_link_item_argument" },
+        { "$ref": link_path() + "esqlate_link_item_static" }
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          text: link_path() + "esqlate_link_item_static",
+          argument: link_path() + "esqlate_link_item_argument"
+        }
+      }
+    },
+
+    esqlate_link: {
+      type: "object",
+      properties: {
+        class: { type: "string" },
+        text: {
+          oneOf: [
+            {
+              type: "array", items: { "$ref": link_path() + "esqlate_link_item" }
+            },
+            { type: "string" }
+          ]
+        },
+        href: {
+          oneOf: [
+            {
+              type: "array", items: { "$ref": link_path() + "esqlate_link_item" }
+            },
+            { type: "string" }
+          ]
+        }
+      },
+      additionalProperties: false,
+      required: ["href"]
+    },
+
     esqlate_parameter_server: self.esqlate_parameter_base + {
       properties: esqlate_parameter_base_properties("server")
     },
@@ -48,6 +113,7 @@ local esqlate_definition = {
       properties: esqlate_parameter_base_properties("integer") + {
         default_value: { "type": "integer", "multipleOf": 1 }
       },
+      additionalProperties: false,
       required: esqlate_parameter_base_required()
     },
 
@@ -55,6 +121,7 @@ local esqlate_definition = {
       properties: esqlate_parameter_base_properties("string") + {
         default_value: { "type": "string" }
       },
+      additionalProperties: false,
       required: esqlate_parameter_base_required()
     },
 
@@ -64,6 +131,7 @@ local esqlate_definition = {
         display_field: { type: "string" },
         value_field: { type: "string" },
       },
+      additionalProperties: false,
       required: esqlate_parameter_base_required() + ["value_field", "definition", "display_field"]
     },
 
@@ -73,22 +141,9 @@ local esqlate_definition = {
         definition: { type: "string" },
         value_field: { type: "string" },
       },
+      additionalProperties: false,
       required: esqlate_parameter_base_required() + ["statement", "value_field"],
     },
-
-    // esqlate_alias: {
-    //   type: "object",
-    //   additionalProperties: false,
-    //   required: [ "source", "destination" ],
-    //   properties: {
-    //     "source": {
-    //       "type": "string"
-    //     },
-    //     "destination": {
-    //       "type": "string"
-    //     },
-    //   }
-    // },
 
     esqlate_parameter: {
       oneOf: [
