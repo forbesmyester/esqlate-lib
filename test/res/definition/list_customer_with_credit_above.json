@@ -12,5 +12,7 @@
       "type": "integer"
     }
   ],
-  "statement": "SELECT\n  id,\n  CONCAT('id', ': ', first_name, ' ', last_name) AS disp\nFROM customers\n  INNER JOIN credit ON credit.customer_id = customers.id\nWHERE credit.amount >= $amount AND sales_rep = $user_id"
+  "statement": "SELECT\n  id,\n  CONCAT('id', ': ', first_name, ' ', last_name) AS disp\nFROM customers\n  INNER JOIN credit ON credit.customer_id = customers.id\nWHERE credit.amount >= $amount AND sales_rep = $user_id",
+  "row_links": [ { "href": "#/create_order", "text": "Create Order" } ],
+  "links": [ { "href": "#/user?id=${user_id}", "text": "Go to User" } ]
 }

@@ -17,7 +17,6 @@ test('normalize', (assert) => {
             {
                 name: "credit",
                 type: "integer",
-                default_value: 5
             },
             {
                 name: "customer_id",
@@ -27,7 +26,7 @@ test('normalize', (assert) => {
                 value_field: "id"
             }
         ],
-        statement: "insert into orders (customer_id, ref, total_credit, available_credit, created_by) values ($customer_id, 'big $$ $$a $ person', $credit, $credit, $user_id)",
+        statement: "insert into orders (customer_id, ref, total_credit, available_credit, created_by) values ($customer_id, 'big $$ $$a $ person', $credit, ${credit}, $user_id)",
     };
 
     const expected: EsqlateStatementNormalized = [
@@ -40,9 +39,9 @@ test('normalize', (assert) => {
                 value_field: "id"
             },
             ", 'big $ $a $ person', ",
-            { name: "credit", type: "integer", default_value: 5 },
+            { name: "credit", type: "integer" },
             ", ",
-            { name: "credit", type: "integer", default_value: 5 },
+            { name: "credit", type: "integer" },
             ", ",
             { name: "user_id", type: "server" },
             ")"

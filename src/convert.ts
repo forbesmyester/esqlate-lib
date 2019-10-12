@@ -9,34 +9,63 @@ export * from "../res/schema-request";
 export * from "../res/schema-request-creation";
 export * from "../res/schema-request-creation-response";
 
-export function normalize(variables: EsqlateParameter[], statement: EsqlateStatement): EsqlateStatementNormalized {
+export interface PullParameterAnswer {
+    pre: string;
+    parameter: string;
+    post?: string;
+    length: number;
+}
 
-    let foundVariable: boolean = true;
+const parameterPullMainRe = /((?:\r|\n|.){0,99999}(^|[^\$]))(\$\{[a-z_]{1,300}\}|\$[a-z_]{1,300})((?:\r|\n|.){0,99999})/;
+const parameterRe = /\$\{?([a-z_]{1,300})\}?/;
+
+export function pullParameter(s: string): PullParameterAnswer|null {
+    const match: null|RegExpMatchArray = s.match(parameterPullMainRe);
+    if (match) {
+        const paramMatch = match[3].match(parameterRe);
+        if (paramMatch === null) {
+            throw new Error("convert.ts: pullParameter: Identified Parameter but could not get name");
+        }
+        const r: PullParameterAnswer = {
+            pre: match[1],
+            parameter: paramMatch[1],
+            length: match.length,
+        };
+        if (match[4] !== "") {
+            r.post = match[4];
+        }
+        return r;
+    }
+    return null;
+}
+
+export function normalize(parameters: EsqlateParameter[], statement: EsqlateStatement): EsqlateStatementNormalized {
+
+    let foundParameter: boolean = true;
     let foundEscapedDollar: boolean = true;
     let loop: number = 0;
     let ret: Array<(string | EsqlateParameter)> = typeof statement === "string" ?
         [statement] :
         statement;
 
-    function getVariable(findingName: string): EsqlateParameter {
-        const r = variables.find(({ name }) => name === findingName);
+    function getParameter(findingName: string): EsqlateParameter {
+        const r = parameters.find(({ name }) => name === findingName);
         if (r === undefined) {
-            throw new Error(`Statement refers to variable ${findingName} but it does not exist`);
+            throw new Error(`Statement refers to parameter ${findingName} but it does not exist`);
         }
         return r;
     }
 
-    function variableReducer(acc: EsqlateStatementNormalized, stat: string | EsqlateParameter): EsqlateStatementNormalized {
+    function parameterReducer(acc: EsqlateStatementNormalized, stat: string | EsqlateParameter): EsqlateStatementNormalized {
         if (typeof stat !== "string") {
             return acc.concat(stat);
         }
-        const re = /((?:\r|\n|.){0,9999}(^|[^\$]))(\$[a-z_]{1,300})((?:\r|\n|.){0,9999})/;
-        const match: null|RegExpMatchArray = stat.match(re);
-        foundVariable = foundVariable ? foundVariable : match !== null;
+        const match = pullParameter(stat);
+        foundParameter = foundParameter ? foundParameter : match !== null;
         if (match) {
-            const toAdd = [match[1], getVariable(match[3].substring(1))];
-            if (match[4] !== "") {
-                toAdd.push(match[4]);
+            const toAdd = [match.pre, getParameter(match.parameter)];
+            if (match.post) {
+                toAdd.push(match.post);
             }
             return acc.concat(toAdd);
         }
@@ -55,11 +84,12 @@ export function normalize(variables: EsqlateParameter[], statement: EsqlateState
         return acc.concat(stat);
     }
 
-    while (foundVariable && ++loop < 10000) {
-        foundVariable = false;
-        ret = ret.reduce(variableReducer, []);
+    while (foundParameter && ++loop < 10000) {
+        foundParameter = false;
+        ret = ret.reduce(parameterReducer, []);
     }
 
+    loop = 0;
     while (foundEscapedDollar && ++loop < 10000) {
         foundEscapedDollar = false;
         ret = ret.reduce(dollarReducer, []);

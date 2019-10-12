@@ -3,7 +3,11 @@ local link_path() = ( if std.extVar('for-openapi') == "1" then "#/components/sch
 local esqlate_definition = {
   type: "object",
   properties: {
-    "name": { type: "string", description: "unique id" },
+    "name": {
+      type: "string",
+      description: "unique id",
+      pattern: "^_?[a-z][a-z0-9_]{0,99}$"
+    },
     title: { description: "The title for the Definition", type: "string" },
     description: { description: "An opportunity to explain more...", type: "string" },
     statement: {
@@ -16,6 +20,12 @@ local esqlate_definition = {
       },
     },
     links: {
+      type: "array",
+      items: {
+        "$ref": link_path() + "esqlate_link"
+      }
+    },
+    row_links: {
       type: "array",
       items: {
         "$ref": link_path() + "esqlate_link"
@@ -34,9 +44,11 @@ local esqlate_definition = {
 
     local parent = self,
     local esqlate_parameter_base_properties(parameter_type) = {
-      name: { type: "string" },
-      allow_null: { type: "boolean" },
-      type: { type: "string", enum: [parameter_type] },
+      name: {
+        type: "string",
+        pattern: "^[a-z][a-z0-9_]{0,99}$"
+      },
+      type: { type: "string", enum: [parameter_type] }
     },
     local esqlate_parameter_base_required() = ["name", "type"],
 
@@ -46,59 +58,18 @@ local esqlate_definition = {
       required: ["type", "name"]
     },
 
-    esqlate_link_item_static: {
-      type: "object",
-      properties: {
-        type: { type: "string", enum: ["static"] },
-        static: { type: "string" }
-      },
-      additionalProperties: false,
-      required: ["type", "static"]
-    },
-
-    esqlate_link_item_argument: {
-      type: "object",
-      properties: {
-        type: { type: "string", enum: ["argument"] },
-        argument: { type: "string" }
-      },
-      additionalProperties: false,
-      required: ["type", "argument"]
-    },
-
-    esqlate_link_item: {
-      oneOf: [
-        { "$ref": link_path() + "esqlate_link_item_argument" },
-        { "$ref": link_path() + "esqlate_link_item_static" }
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          text: link_path() + "esqlate_link_item_static",
-          argument: link_path() + "esqlate_link_item_argument"
-        }
-      }
-    },
-
     esqlate_link: {
       type: "object",
+      description: "Will show a link in the result set allowing navigation to different URL (internal and external)",
       properties: {
         class: { type: "string" },
         text: {
-          oneOf: [
-            {
-              type: "array", items: { "$ref": link_path() + "esqlate_link_item" }
-            },
-            { type: "string" }
-          ]
+          description: "Application follows interpolonation rules where ${your_field} will be replaced by the your_field from the result set",
+          type: "string"
         },
         href: {
-          oneOf: [
-            {
-              type: "array", items: { "$ref": link_path() + "esqlate_link_item" }
-            },
-            { type: "string" }
-          ]
+          description: "Application follows interpolonation rules where ${your_field} will be replaced by the your_field from the result set",
+          type: "string"
         }
       },
       additionalProperties: false,
@@ -110,17 +81,19 @@ local esqlate_definition = {
     },
 
     esqlate_parameter_integer: {
-      properties: esqlate_parameter_base_properties("integer") + {
-        default_value: { "type": "integer", "multipleOf": 1 }
-      },
+      properties: esqlate_parameter_base_properties("integer"),
+      additionalProperties: false,
+      required: esqlate_parameter_base_required()
+    },
+
+    esqlate_parameter_static: {
+      properties: esqlate_parameter_base_properties("static"),
       additionalProperties: false,
       required: esqlate_parameter_base_required()
     },
 
     esqlate_parameter_string: {
-      properties: esqlate_parameter_base_properties("string") + {
-        default_value: { "type": "string" }
-      },
+      properties: esqlate_parameter_base_properties("string"),
       additionalProperties: false,
       required: esqlate_parameter_base_required()
     },
@@ -137,18 +110,18 @@ local esqlate_definition = {
 
     esqlate_parameter_popup: {
       properties: esqlate_parameter_base_properties("popup") + {
-        name: { type: "string" },
         definition: { type: "string" },
         value_field: { type: "string" },
       },
       additionalProperties: false,
-      required: esqlate_parameter_base_required() + ["statement", "value_field"],
+      required: esqlate_parameter_base_required() + ["definition", "value_field"],
     },
 
     esqlate_parameter: {
       oneOf: [
         { "$ref": link_path() + "esqlate_parameter_select" },
         { "$ref": link_path() + "esqlate_parameter_integer" },
+        { "$ref": link_path() + "esqlate_parameter_static" },
         { "$ref": link_path() + "esqlate_parameter_string" },
         { "$ref": link_path() + "esqlate_parameter_popup" },
         { "$ref": link_path() + "esqlate_parameter_server" },
@@ -158,6 +131,7 @@ local esqlate_definition = {
         mapping: {
           string: link_path() + "esqlate_parameter_string",
           integer: link_path() + "esqlate_parameter_integer",
+          static: link_path() + "esqlate_parameter_static",
           select: link_path() + "esqlate_parameter_select",
           popup: link_path() + "esqlate_parameter_popup",
           server: link_path() + "esqlate_parameter_server",

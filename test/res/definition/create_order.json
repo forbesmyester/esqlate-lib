@@ -4,8 +4,7 @@
   "parameters": [
     {
       "name": "credit",
-      "type": "integer",
-      "default_value": 5
+      "type": "integer"
     },
     {
       "name": "customer_id",
