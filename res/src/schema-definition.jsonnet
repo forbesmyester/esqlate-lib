@@ -80,6 +80,18 @@ local esqlate_definition = {
       properties: esqlate_parameter_base_properties("server")
     },
 
+    esqlate_parameter_date: {
+      properties: esqlate_parameter_base_properties("date"),
+      additionalProperties: false,
+      required: esqlate_parameter_base_required()
+    },
+
+    esqlate_parameter_timestampz: {
+      properties: esqlate_parameter_base_properties("timestampz"),
+      additionalProperties: false,
+      required: esqlate_parameter_base_required()
+    },
+
     esqlate_parameter_integer: {
       properties: esqlate_parameter_base_properties("integer"),
       additionalProperties: false,
@@ -120,6 +132,8 @@ local esqlate_definition = {
     esqlate_parameter: {
       oneOf: [
         { "$ref": link_path() + "esqlate_parameter_select" },
+        { "$ref": link_path() + "esqlate_parameter_timestampz" },
+        { "$ref": link_path() + "esqlate_parameter_date" },
         { "$ref": link_path() + "esqlate_parameter_integer" },
         { "$ref": link_path() + "esqlate_parameter_static" },
         { "$ref": link_path() + "esqlate_parameter_string" },
@@ -130,6 +144,8 @@ local esqlate_definition = {
         propertyName: "type",
         mapping: {
           string: link_path() + "esqlate_parameter_string",
+          timestampz: link_path() + "esqlate_parameter_timestampz",
+          date: link_path() + "esqlate_parameter_date",
           integer: link_path() + "esqlate_parameter_integer",
           static: link_path() + "esqlate_parameter_static",
           select: link_path() + "esqlate_parameter_select",
