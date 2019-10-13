@@ -21,6 +21,25 @@ local schemaResult = import "./schema-result.jsonnet";
   },
   servers: [{ url: "http://petstore.swagger.io/api/v2" }],
   paths: {
+    "/": {
+      get: {
+        summary: "Gets a list of definition",
+        operationId: "list",
+        tags: [],
+        responses: {
+          "200": {
+            description: "successful operation",
+            content: {
+              "application/json": {
+                schema: {
+                  "$ref": "#/components/schemas/definition_list"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/definition/{definitionName}": {
       get: {
         summary: "Gets a definition",
@@ -237,6 +256,17 @@ local schemaResult = import "./schema-result.jsonnet";
       schemaRequestCreationResponse['definitions'] +
       schemaRequest['definitions'] +
 			schemaResult['definitions'] +
-      { }
+      {
+        definition_list: {
+            type: "array",
+            items: {
+              required: [ "title", "name" ],
+              properties: {
+                "name": { "type": "string" },
+                "title": { "type": "string" }
+              }
+            }
+          }
+      }
   }
 }
