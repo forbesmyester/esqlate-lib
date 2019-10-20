@@ -92,6 +92,17 @@ local esqlate_definition = {
       required: esqlate_parameter_base_required()
     },
 
+    esqlate_parameter_decimal: {
+      properties: esqlate_parameter_base_properties("decimal") + {
+        decimal_places: {
+          type: "number",
+          description: "How many decimal places should be allowed"
+        }
+      },
+      additionalProperties: false,
+      required: esqlate_parameter_base_required() + ["decimal_places"]
+    },
+
     esqlate_parameter_integer: {
       properties: esqlate_parameter_base_properties("integer"),
       additionalProperties: false,
@@ -124,9 +135,10 @@ local esqlate_definition = {
       properties: esqlate_parameter_base_properties("popup") + {
         definition: { type: "string" },
         value_field: { type: "string" },
+        display_field: { type: "string" },
       },
       additionalProperties: false,
-      required: esqlate_parameter_base_required() + ["definition", "value_field"],
+      required: esqlate_parameter_base_required() + ["definition", "value_field", "display_field"],
     },
 
     esqlate_parameter: {
@@ -135,6 +147,7 @@ local esqlate_definition = {
         { "$ref": link_path() + "esqlate_parameter_timestampz" },
         { "$ref": link_path() + "esqlate_parameter_date" },
         { "$ref": link_path() + "esqlate_parameter_integer" },
+        { "$ref": link_path() + "esqlate_parameter_decimal" },
         { "$ref": link_path() + "esqlate_parameter_static" },
         { "$ref": link_path() + "esqlate_parameter_string" },
         { "$ref": link_path() + "esqlate_parameter_popup" },
@@ -147,6 +160,7 @@ local esqlate_definition = {
           timestampz: link_path() + "esqlate_parameter_timestampz",
           date: link_path() + "esqlate_parameter_date",
           integer: link_path() + "esqlate_parameter_integer",
+          decimal: link_path() + "esqlate_parameter_decimal",
           static: link_path() + "esqlate_parameter_static",
           select: link_path() + "esqlate_parameter_select",
           popup: link_path() + "esqlate_parameter_popup",
