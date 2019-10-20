@@ -20,17 +20,7 @@ local complete_result = {
     },
     rows: {
       type: "array",
-      items: {
-        type: "array",
-        items: {
-          anyOf: [
-            { type: "number" },
-            { type: "string" },
-            { type: "integer" },
-            { type: "boolean" },
-          ]
-        }
-      }
+      items: { "$ref": link_path() + "esqlate_complete_result_row" }
     }
   },
   required: ["status", "fields", "rows"],
@@ -57,6 +47,18 @@ local result = {
   descrition: "esqlate is a restful SQL service with a nice UI",
 
   definitions: {
+
+    esqlate_complete_result_row: {
+      type: "array",
+      items: {
+        anyOf: [
+          { type: "number" },
+          { type: "string" },
+          { type: "integer" },
+          { type: "boolean" },
+        ]
+      }
+    },
 
     esqlate_field_definition: {
       type: "object",
