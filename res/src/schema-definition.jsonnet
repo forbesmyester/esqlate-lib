@@ -48,7 +48,8 @@ local esqlate_definition = {
         type: "string",
         pattern: "^[a-z][a-z0-9_]{0,99}$"
       },
-      type: { type: "string", enum: [parameter_type] }
+      type: { type: "string", enum: [parameter_type] },
+      highlight_field: { type: "string" },
     },
     local esqlate_parameter_base_required() = ["name", "type"],
 
