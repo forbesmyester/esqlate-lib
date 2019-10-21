@@ -86,8 +86,8 @@ local esqlate_definition = {
       required: esqlate_parameter_base_required()
     },
 
-    esqlate_parameter_timestampz: {
-      properties: esqlate_parameter_base_properties("timestampz"),
+    esqlate_parameter_datetime: {
+      properties: esqlate_parameter_base_properties("datetime"),
       additionalProperties: false,
       required: esqlate_parameter_base_required()
     },
@@ -144,7 +144,7 @@ local esqlate_definition = {
     esqlate_parameter: {
       oneOf: [
         { "$ref": link_path() + "esqlate_parameter_select" },
-        { "$ref": link_path() + "esqlate_parameter_timestampz" },
+        { "$ref": link_path() + "esqlate_parameter_datetime" },
         { "$ref": link_path() + "esqlate_parameter_date" },
         { "$ref": link_path() + "esqlate_parameter_integer" },
         { "$ref": link_path() + "esqlate_parameter_decimal" },
@@ -157,7 +157,7 @@ local esqlate_definition = {
         propertyName: "type",
         mapping: {
           string: link_path() + "esqlate_parameter_string",
-          timestampz: link_path() + "esqlate_parameter_timestampz",
+          datetime: link_path() + "esqlate_parameter_datetime",
           date: link_path() + "esqlate_parameter_date",
           integer: link_path() + "esqlate_parameter_integer",
           decimal: link_path() + "esqlate_parameter_decimal",
