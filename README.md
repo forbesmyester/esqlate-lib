@@ -4,7 +4,7 @@ Esqlate Lib is the home for TypeScript definitions, JSON/OpenAPIv3 Schemas and a
 
 ## Instructions
 
-To build assets (which includes the definitions and schemas) you will need to nstall:
+To build assets (which includes the definitions and schemas) you will need to install:
 
  * [NodeJS](https://nodejs.org/en/)
  * [JSONNET](https://jsonnet.org/)
