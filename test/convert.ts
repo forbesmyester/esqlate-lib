@@ -1,4 +1,4 @@
-import { forHyper, newlineBreak, html, HDoc, normalize } from '../src/convert';
+import { forHyper, newlineBreak, html, HDoc, normalize, removeLineBeginningWhitespace } from '../src/convert';
 import { EsqlateStatementNormalized, EsqlateDefinition } from '../res/schema-definition';
 
 import test from 'tape';
@@ -228,4 +228,27 @@ test('forHyper', (assert) => {
     );
 
     assert.end();
+});
+
+test('Can removeLineBeginningWhitespace', (assert) => {
+    const input = "\
+        SELECT\n\
+          product_id,\n\
+          product_name,\n\
+          suppliers.company_name as supplier_name,\n\
+          categories.category_name,\n\
+          unit_price,\n\
+          units_in_stock + units_on_order as available,\n\
+          unit_price\n\
+        FROM products\n\
+        LEFT JOIN categories on categories.category_id = products.category_id\n\
+        LEFT JOIN suppliers on suppliers.supplier_id = products.supplier_id\n\
+       WHERE LOWER(product_name) LIKE CONCAT('%', LOWER($search_string), '%')" // Last de-indent by one space deliberate.
+
+    const expected = "SELECT\n  product_id,\n  product_name,\n  suppliers.company_name as supplier_name,\n  categories.category_name,\n  unit_price,\n  units_in_stock + units_on_order as available,\n  unit_price\nFROM products\nLEFT JOIN categories on categories.category_id = products.category_id\nLEFT JOIN suppliers on suppliers.supplier_id = products.supplier_id\n       WHERE LOWER(product_name) LIKE CONCAT('%', LOWER($search_string), '%')"
+
+    assert.is(removeLineBeginningWhitespace(input), expected);
+
+assert.end();
+
 });

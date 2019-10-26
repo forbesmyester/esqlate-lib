@@ -39,6 +39,18 @@ export function pullParameter(s: string): PullParameterAnswer|null {
     return null;
 }
 
+export function removeLineBeginningWhitespace(s: string): string {
+    const postNewlineRemove = s.replace(/^\n/, "").match(/^([ \t]*)/);
+    if (!postNewlineRemove) { return s; }
+    let lastR = "";
+    let r = s.replace(/^\n/, "").replace(postNewlineRemove[1], "");
+    while (lastR !== r) {
+        lastR = "" + r;
+        r = r.replace("\n" + postNewlineRemove[1], "\n");
+    }
+    return r;
+}
+
 export function normalize(parameters: EsqlateParameter[], statement: EsqlateStatement): EsqlateStatementNormalized {
 
     let foundParameter: boolean = true;
