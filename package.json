@@ -1,6 +1,6 @@
 {
   "name": "esqlate-lib",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "SQL based functional CRUD - The Libary",
   "main": "./dist/convert.js",
   "dependencies": {
@@ -39,7 +39,7 @@
     "postgresql"
   ],
   "author": "Matt Forrester <github@speechmarks.com>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/forbesmyester/esqlate/issues"
   },
