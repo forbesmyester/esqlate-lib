@@ -1,6 +1,6 @@
 {
   "name": "esqlate-lib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SQL based functional CRUD - The Libary",
   "main": "./dist/convert.js",
   "dependencies": {
@@ -19,6 +19,7 @@
     "tape": "^4.10.2",
     "ts-node": "^8.2.0"
   },
+  "files": ["res", "dist", "redoc-static.html"],
   "typings": "./dist/convert.d.ts",
   "scripts": {
     "test-schema": "parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-definition.json ::: test/res/definition/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-result.json ::: test/res/result/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-request.json ::: test/res/request/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-request-creation.json ::: test/res/request-creation/*.json",
