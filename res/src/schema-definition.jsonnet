@@ -30,7 +30,8 @@ local esqlate_definition = {
       items: {
         "$ref": link_path() + "esqlate_link"
       }
-    }
+    },
+    statement_type: { type: "string", enum: ["SELECT", "DELETE", "UPDATE", "INSERT", "OTHER"] },
   },
   required: ["name", "title", "statement", "parameters"],
   additionalProperties: false,
