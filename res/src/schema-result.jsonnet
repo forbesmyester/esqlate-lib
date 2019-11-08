@@ -10,17 +10,26 @@ local error_result = {
   additionalProperties: false
 };
 
-local complete_result = {
+local success_result = {
   type: "object",
   properties: {
-    status: { type: "string", enum: ["complete"] },
+    status: { type: "string", enum: ["preview", "complete"] },
     fields: {
       type: "array",
       items: { "$ref": link_path() + "esqlate_field_definition" }
     },
     rows: {
       type: "array",
-      items: { "$ref": link_path() + "esqlate_complete_result_row" }
+      items: { "$ref": link_path() + "esqlate_success_result_row" }
+    },
+    full_data_set: {
+      type: "boolean",
+      description: "When true the results herein are only partial"
+    },
+    full_format_urls: {
+      type: "array",
+      description: "Locations of the results in other formats",
+      items: { "$ref": link_path() + "esqlate_complete_result_other_format" }
     }
   },
   required: ["status", "fields", "rows"],
@@ -29,13 +38,14 @@ local complete_result = {
 
 local result = {
   oneOf: [
-    { "$ref": link_path() + "esqlate_complete_result" },
+    { "$ref": link_path() + "esqlate_success_result" },
     { "$ref": link_path() + "esqlate_error_result" }
   ],
   discriminator: {
     propertyName: "status",
     mapping: {
-      "complete": link_path() + "esqlate_complete_result",
+      "preview": link_path() + "esqlate_success_result",
+      "complete": link_path() + "esqlate_success_result",
       "error": link_path() + "esqlate_error_result",
     }
   }
@@ -48,7 +58,7 @@ local result = {
 
   definitions: {
 
-    esqlate_complete_result_row: {
+    esqlate_success_result_row: {
       type: "array",
       items: {
         anyOf: [
@@ -57,6 +67,26 @@ local result = {
           { type: "integer" },
           { type: "boolean" },
         ]
+      }
+    },
+
+    esqlate_other_format_url: {
+      type: "object",
+      additionalProperties: false,
+      required: [ "mime_type", "url" ],
+      properties: {
+        "mime_type": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+
+    esqlate_complete_result_other_format: {
+      type: "object",
+      additionalProperties: false,
+      required: [ "url", "type" ],
+      properties: {
+        "location": { "type": "string" },
+        "type": { "type": "string" }
       }
     },
 
@@ -70,7 +100,7 @@ local result = {
       }
     },
 
-    esqlate_complete_result: complete_result,
+    esqlate_success_result: success_result,
     esqlate_error_result: error_result,
     esqlate_result: result,
 

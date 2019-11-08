@@ -215,7 +215,7 @@ local schemaResult = import "./schema-result.jsonnet";
 		},
     "/result/{definitionName}/{resultId}": {
       get: {
-        summary: "Gets the Results created from a Request",
+        summary: "Gets the (maybe only some) Results created from a Request",
         operationId: "getResults",
         tags: [],
         parameters: [
@@ -244,6 +244,35 @@ local schemaResult = import "./schema-result.jsonnet";
                 }
               }
             }
+          }
+        }
+			}
+    },
+    "/result/{definitionName}/{resultId}.csv": {
+      get: {
+        summary: "Gets the (all of the) Results created from a Request in CSV format",
+        operationId: "getResults",
+        tags: [],
+        parameters: [
+          {
+            name: "definitionName",
+            "in": "path",
+            description: "Name of the definition",
+            required: true,
+            schema: { "type": "string" }
+          },
+          {
+            name: "resultId",
+            "in": "path",
+            description: "The Id of the Result",
+            required: true,
+            schema: { type: "string" }
+          }
+        ],
+        responses: {
+          "200": {
+            description: "The final results",
+            content: { "text/csv": { } }
           }
         }
 			}
