@@ -16,7 +16,9 @@ export interface PullParameterAnswer {
     length: number;
 }
 
+// tslint:disable:max-line-length
 const parameterPullMainRe = /((?:\r|\n|.){0,99999}(^|[^\$]))(\$\{[a-z_]{1,300}\}|\$[a-z_]{1,300})((?:\r|\n|.){0,99999})/;
+// tslint:enable:max-line-length
 const parameterRe = /\$\{?([a-z_]{1,300})\}?/;
 
 export function pullParameter(s: string): PullParameterAnswer|null {
@@ -42,13 +44,12 @@ export function pullParameter(s: string): PullParameterAnswer|null {
 export function removeLineBeginningWhitespace(s: string): string {
     const postNewlineRemove = s.replace(/^\n/, "").match(/^([ \t]*)/);
     if (!postNewlineRemove) { return s; }
-    let lastR = "";
-    let r = s.replace(/^\n/, "").replace(postNewlineRemove[1], "");
-    while (lastR !== r) {
-        lastR = "" + r;
-        r = r.replace("\n" + postNewlineRemove[1], "\n");
-    }
-    return r;
+    return s.split("\n").map((line) => {
+        if (line.indexOf(postNewlineRemove[1]) === 0) {
+            return line.replace(postNewlineRemove[1], "");
+        }
+        return line;
+    }).join("\n");
 }
 
 export function normalize(parameters: EsqlateParameter[], statement: EsqlateStatement): EsqlateStatementNormalized {
