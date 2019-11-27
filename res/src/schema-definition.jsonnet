@@ -19,6 +19,12 @@ local esqlate_definition = {
         "$ref": link_path() + "esqlate_parameter",
       },
     },
+    top_links: {
+      type: "array",
+      items: {
+        "$ref": link_path() + "esqlate_link"
+      }
+    },
     links: {
       type: "array",
       items: {
