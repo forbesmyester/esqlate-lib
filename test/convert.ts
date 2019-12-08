@@ -82,6 +82,48 @@ test('normalize 2', (assert) => {
     assert.end();
 });
 
+test('normalize 3', (assert) => {
+
+    const input: EsqlateDefinition = {
+        title: "Customers with credit",
+        name: "customers_with_credit",
+        parameters: [
+            { name: "amount", type: "integer" },
+            { name: "user_id", type: "integer" }
+        ],
+        statement: [
+            "select id, disp from customers\ninner join credit on credit.customer_id = customer.id\n",
+            "where credit.amount > ",
+            {
+                "name": "amount",
+                "type": "integer"
+            },
+            "and id > $user_id"
+        ],
+    };
+
+    const expected: EsqlateStatementNormalized = [
+        "select id, disp from customers\ninner join credit on credit.customer_id = customer.id\n",
+        "where credit.amount > ",
+        {
+            "name": "amount",
+            "type": "integer"
+        },
+        "and id > ",
+        {
+            "name": "user_id",
+            "type": "integer"
+        },
+    ];
+
+    assert.deepEqual(
+        normalize(input.parameters, input.statement),
+        expected
+    );
+
+    assert.end();
+});
+
 test('newlineBreak', (assert) => {
 
     const input: EsqlateStatementNormalized = [

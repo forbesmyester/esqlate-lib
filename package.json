@@ -1,10 +1,8 @@
 {
   "name": "esqlate-lib",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "SQL based functional CRUD - The Libary",
   "main": "./dist/convert.js",
-  "devDependencies": {
-  },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "0.0.16-4.1.0",
     "@types/tape": "^4.2.33",
@@ -19,7 +17,11 @@
     "tape": "^4.10.2",
     "typescript": "^3.5.1"
   },
-  "files": ["res", "dist", "redoc-static.html"],
+  "files": [
+    "res",
+    "dist",
+    "redoc-static.html"
+  ],
   "typings": "./dist/convert.d.ts",
   "scripts": {
     "test-schema": "parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-definition.json ::: test/res/definition/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-result.json ::: test/res/result/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-request.json ::: test/res/request/*.json && parallel -j 1 node ./utils/test-schema.js {} {} ::: ./res/schema-request-creation.json ::: test/res/request-creation/*.json",
@@ -29,7 +31,8 @@
     "build-openapi-docs": "npm run-script build-openapi && redoc-cli bundle res/openapi.json",
     "build-schema": "parallel -j 1 jsonnet --ext-str for-openapi=0 {} '>' ./res/{/.}.json ::: res/src/schema-*.jsonnet",
     "build-dts": "parallel -j 1 node ./utils/compile.js {} {.}.d.ts ::: ./res/schema-*.json",
-    "build": "npm run-script build-schema && npm run-script build-dts && npm run-script build-openapi-docs && tslint -p . || true && tsc"
+    "build-pegjs": "touch pegjs/parser.js && rm pegjs/parser.js && pegjs pegjs/parser.pegjs",
+    "build": "npm run-script build-pegjs && npm run-script build-schema && npm run-script build-dts && npm run-script build-openapi-docs && tslint -p . || true && tsc"
   },
   "repository": {
     "type": "git",
@@ -44,5 +47,8 @@
   "bugs": {
     "url": "https://github.com/forbesmyester/esqlate/issues"
   },
-  "homepage": "https://github.com/forbesmyester/esqlate#readme"
+  "homepage": "https://github.com/forbesmyester/esqlate#readme",
+  "dependencies": {
+    "pegjs": "^0.10.0"
+  }
 }

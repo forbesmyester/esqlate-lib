@@ -1,3 +1,5 @@
+const parser = require("../pegjs/parser");
+
 import {
     EsqlateParameter,
     EsqlateStatement,
@@ -16,29 +18,16 @@ export interface PullParameterAnswer {
     length: number;
 }
 
-// tslint:disable:max-line-length
-const parameterPullMainRe = /((?:\r|\n|.){0,99999}(^|[^\$]))(\$\{[a-z_]{1,300}\}|\$[a-z_]{1,300})((?:\r|\n|.){0,99999})/;
-// tslint:enable:max-line-length
-const parameterRe = /\$\{?([a-z_]{1,300})\}?/;
+enum PegParsedType {
+    TEXT = "TEXT",
+    VARIABLE = "VARIABLE",
+}
+interface PegParsedText { type: PegParsedType.TEXT; text: string; }
+interface PegParsedVariable { type: PegParsedType.VARIABLE; function: string; variable: string; }
+type PegParsedItem = PegParsedText | PegParsedVariable;
 
-export function pullParameter(s: string): PullParameterAnswer|null {
-    const match: null|RegExpMatchArray = s.match(parameterPullMainRe);
-    if (match) {
-        const paramMatch = match[3].match(parameterRe);
-        if (paramMatch === null) {
-            throw new Error("convert.ts: pullParameter: Identified Parameter but could not get name");
-        }
-        const r: PullParameterAnswer = {
-            pre: match[1],
-            parameter: paramMatch[1],
-            length: match.length,
-        };
-        if (match[4] !== "") {
-            r.post = match[4];
-        }
-        return r;
-    }
-    return null;
+function doParse(s: string): PegParsedItem[] {
+    return parser.parse(s);
 }
 
 export function removeLineBeginningWhitespace(s: string): string {
@@ -54,9 +43,6 @@ export function removeLineBeginningWhitespace(s: string): string {
 
 export function normalize(parameters: EsqlateParameter[], statement: EsqlateStatement): EsqlateStatementNormalized {
 
-    let foundParameter: boolean = true;
-    let foundEscapedDollar: boolean = true;
-    let loop: number = 0;
     let ret: Array<(string | EsqlateParameter)> = typeof statement === "string" ?
         [statement] :
         statement;
@@ -73,42 +59,19 @@ export function normalize(parameters: EsqlateParameter[], statement: EsqlateStat
         if (typeof stat !== "string") {
             return acc.concat(stat);
         }
-        const match = pullParameter(stat);
-        foundParameter = foundParameter ? foundParameter : match !== null;
-        if (match) {
-            const toAdd = [match.pre, getParameter(match.parameter)];
-            if (match.post) {
-                toAdd.push(match.post);
-            }
-            return acc.concat(toAdd);
-        }
-        return acc.concat(stat);
+        const item = doParse(stat);
+        return item.reduce(
+            (innerAcc, item) => {
+                if (item.type == PegParsedType.TEXT) {
+                    return innerAcc.concat(item.text);
+                }
+                return innerAcc.concat(getParameter(item.variable));
+            },
+            acc
+        );
     }
 
-    function dollarReducer(acc: EsqlateStatementNormalized, stat: string | EsqlateParameter): EsqlateStatementNormalized {
-        if (typeof stat !== "string") {
-            return acc.concat(stat);
-        }
-        const match: null|RegExpMatchArray = stat.match(/\$\$/);
-        foundEscapedDollar = foundEscapedDollar ? foundEscapedDollar : match !== null;
-        if (match) {
-            return acc.concat([stat.replace(/\$\$/g, "$")]);
-        }
-        return acc.concat(stat);
-    }
-
-    while (foundParameter && ++loop < 10000) {
-        foundParameter = false;
-        ret = ret.reduce(parameterReducer, []);
-    }
-
-    loop = 0;
-    while (foundEscapedDollar && ++loop < 10000) {
-        foundEscapedDollar = false;
-        ret = ret.reduce(dollarReducer, []);
-    }
-
-    return ret;
+    return ret.reduce(parameterReducer, []);
 }
 
 export interface HDocAttrs { [k: string]: string; }
