@@ -1,6 +1,6 @@
 {
   "name": "esqlate-lib",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "SQL based functional CRUD - The Libary",
   "main": "./dist/convert.js",
   "devDependencies": {

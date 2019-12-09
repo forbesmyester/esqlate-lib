@@ -1,4 +1,6 @@
+/* tslint:disable */
 const parser = require("../pegjs/parser");
+/* tslint:enable */
 
 import {
     EsqlateParameter,
@@ -18,15 +20,15 @@ export interface PullParameterAnswer {
     length: number;
 }
 
-enum PegParsedType {
+export enum ParsedType {
     TEXT = "TEXT",
     VARIABLE = "VARIABLE",
 }
-interface PegParsedText { type: PegParsedType.TEXT; text: string; }
-interface PegParsedVariable { type: PegParsedType.VARIABLE; function: string; variable: string; }
-type PegParsedItem = PegParsedText | PegParsedVariable;
+export interface ParsedText { type: ParsedType.TEXT; text: string; }
+export interface ParsedVariable { type: ParsedType.VARIABLE; function: string; variable: string[]; }
+export type ParsedItem = ParsedText | ParsedVariable;
 
-function doParse(s: string): PegParsedItem[] {
+export function rawParse(s: string): ParsedItem[] {
     return parser.parse(s);
 }
 
@@ -43,7 +45,7 @@ export function removeLineBeginningWhitespace(s: string): string {
 
 export function normalize(parameters: EsqlateParameter[], statement: EsqlateStatement): EsqlateStatementNormalized {
 
-    let ret: Array<(string | EsqlateParameter)> = typeof statement === "string" ?
+    const ret: Array<(string | EsqlateParameter)> = typeof statement === "string" ?
         [statement] :
         statement;
 
@@ -59,15 +61,20 @@ export function normalize(parameters: EsqlateParameter[], statement: EsqlateStat
         if (typeof stat !== "string") {
             return acc.concat(stat);
         }
-        const item = doParse(stat);
-        return item.reduce(
+        return rawParse(stat).reduce(
             (innerAcc, item) => {
-                if (item.type == PegParsedType.TEXT) {
+                if (item.type === ParsedType.TEXT) {
                     return innerAcc.concat(item.text);
                 }
-                return innerAcc.concat(getParameter(item.variable));
+                if (item.function !== "noop") {
+                    throw new Error("The function for a variable must be noop");
+                }
+                if (item.variable.length !== 1) {
+                    throw new Error("Only one variable for a ${} is allowed");
+                }
+                return innerAcc.concat(getParameter(item.variable[0]));
             },
-            acc
+            acc,
         );
     }
 
