@@ -18,3 +18,7 @@ npm run-script build
 ```
 
 Once this is done schemas as definitions are stored in the [res](./res}) directory and there is a nice browser viewable version of the OpenAPIv3 spec at [redoc-static.html](./redoc-static.html).
+
+## License
+
+This project (all code in this repository) is listed under GPL
